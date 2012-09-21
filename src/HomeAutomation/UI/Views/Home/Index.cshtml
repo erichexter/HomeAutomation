@@ -1,14 +1,67 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Lighting";
 }
 
-<h2>@ViewBag.Message</h2>
-<p>
-    To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
-</p>
+@section Scripts{
+<script src="Scripts/json2.min.js"></script>
+<script src="Scripts/jquery.signalR-0.5.3.min.js"></script>
 
-<ul data-role="listview" data-inset="true">
-    <li data-role="list-divider">Navigation</li>
-    <li>@Html.ActionLink("About", "About", "Home")</li>
-    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-</ul>
+  <script src="/signalr/hubs" type="text/javascript"></script>
+  <script type="text/javascript">
+      $(function () {
+          // Proxy created on the fly
+          var chat = $.connection.relayCommands;
+
+          // Declare a function on the chat hub so the server can invoke it
+          chat.sent = function (address,command) {
+              $('#messages').append('<li>' + address+ ' ' + command + '</li>');
+          };
+
+
+
+          $( "select" ).bind( "change", function(event, ui) {
+              chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[1]).val());
+          });
+
+          // Start the connection
+          $.connection.hub.start();
+      });
+  </script>
+    }
+<h2>Hexter's</h2>
+<p>
+    
+</p>
+<div " class="ui-body ui-body-a">
+
+<div data-role="fieldcontain" >
+<label for="flip-mini">Office</label>
+<select name="flip-mini" id="flip-mini1" data-role="slider" data-mini="true" data-x10="a8">
+	<option value="off">Off</option>
+	<option value="on">On</option>
+</select>
+</div>
+
+    <div data-role="fieldcontain" >
+<label for="flip-mini">Stairway</label>
+<select  name="flip-mini" id="flip-mini2" data-role="slider" data-mini="true" data-x10="a6">
+	<option value="off">Off</option>
+	<option value="on">On</option>
+</select>
+</div>
+
+    <div data-role="fieldcontain" >
+<label for="flip-mini">Living Room</label>
+<select  name="flip-mini" id="flip-mini3" data-role="slider" data-mini="true" data-x10="a5">
+	<option value="off">Off</option>
+	<option value="on">On</option>
+</select>
+</div>
+    </div>
+
+
+  
+
+
+  <ul id="messages">
+  </ul>
