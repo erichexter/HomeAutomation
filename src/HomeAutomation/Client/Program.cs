@@ -10,7 +10,8 @@ namespace LightController
     {
         static void Main(string[] args)
         {
-            var hubConnection = new HubConnection("http://localhost:51409/");
+            var baseuri = System.Configuration.ConfigurationManager.AppSettings["base"];
+            var hubConnection = new HubConnection(baseuri);
 
             // Create a proxy to the chat service
             var chat = hubConnection.CreateProxy("relayCommands");
