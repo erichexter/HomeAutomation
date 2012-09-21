@@ -14,13 +14,13 @@
 
           // Declare a function on the chat hub so the server can invoke it
           chat.sent = function (address,command) {
-              $('#messages').append('<li>' + address+ ' ' + command + '</li>');
+              $('#messages').text(  address+ ' ' + command ).show().fadeOut(1500);
           };
 
 
 
           $( "select" ).bind( "change", function(event, ui) {
-              chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[1]).val());
+              chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
           });
 
           // Start the connection
@@ -59,9 +59,4 @@
 </div>
     </div>
 
-
-  
-
-
-  <ul id="messages">
-  </ul>
+<div id="messages"></div>
