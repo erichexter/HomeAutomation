@@ -1,0 +1,32 @@
+﻿<html>
+<script src="Scripts/jquery-1.7.1.min.js"></script>
+<script src="Scripts/json2.min.js"></script>
+<script src="Scripts/jquery.signalR-0.5.3.min.js"></script>
+
+  <script src="/signalr/hubs" type="text/javascript"></script>
+  <script type="text/javascript">
+      $(function () {
+          // Proxy created on the fly
+          var chat = $.connection.relayCommands;
+
+          // Declare a function on the chat hub so the server can invoke it
+          chat.sent = function (address,command) {
+              $('#messages').append('<li>' + address+ ' ' + command + '</li>');
+          };
+
+          $("#broadcast").click(function () {
+              // Call the chat method on the server
+              chat.sendCommandToClient("a1",$('#msg').val());
+          });
+
+          // Start the connection
+          $.connection.hub.start();
+      });
+  </script>
+  
+  <input type="text" id="msg" />
+  <input type="button" id="broadcast" value="broadcast" />
+
+  <ul id="messages">
+  </ul>
+    </html>
