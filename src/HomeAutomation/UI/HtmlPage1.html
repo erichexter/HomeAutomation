@@ -16,7 +16,7 @@
 
           $("#broadcast").click(function () {
               // Call the chat method on the server
-              chat.sendCommandToClient("a1",$('#msg').val());
+              chat.sendCommandToClient($('#address').val(), $('#msg').val());
           });
 
           // Start the connection
@@ -24,6 +24,7 @@
       });
   </script>
   
+    <input type="text" id="address" />
   <input type="text" id="msg" />
   <input type="button" id="broadcast" value="broadcast" />
 
