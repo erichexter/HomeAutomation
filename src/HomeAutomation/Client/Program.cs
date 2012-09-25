@@ -35,7 +35,10 @@ namespace LightController
             hubConnection.Start().Wait();
 
             while(true){
-                System.Threading.Thread.Sleep(60000);
+                Console.WriteLine("heartbeat");
+                chat.Invoke("heartBeat", DateTime.Now, "x10 still running");
+                System.Threading.Thread.Sleep(30000);
+                
                   
             }
 

@@ -1,13 +1,14 @@
-﻿@{
+﻿@model List<UI.Controllers.Device>
+@{
     ViewBag.Title = "Lighting";
+    var count=0;
 }
 
 @section Scripts{
 <script src="Scripts/json2.min.js"></script>
 <script src="Scripts/jquery.signalR-0.5.3.min.js"></script>
-
-  <script src="/signalr/hubs" type="text/javascript"></script>
-  <script type="text/javascript">
+<script src="/signalr/hubs" type="text/javascript"></script>
+<script type="text/javascript">
       $(function () {
           // Proxy created on the fly
           var chat = $.connection.relayCommands;
@@ -17,46 +18,30 @@
               $('#messages').text(  address+ ' ' + command ).show().fadeOut(1500);
           };
 
-
-
-          $( "select" ).bind( "change", function(event, ui) {
+          $("select").bind("change", function (event, ui) {
               chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
           });
 
           // Start the connection
           $.connection.hub.start();
       });
-  </script>
-    }
+</script>
+}
 <h2>Hexter's</h2>
 <p>
     
 </p>
 <div " class="ui-body ui-body-a">
-
-<div data-role="fieldcontain" >
-<label for="flip-1">Office</label>
-<select name="flip-1"  data-role="slider" data-mini="true" data-x10="a8">
-	<option value="off">Off</option>
-	<option value="on">On</option>
-</select>
-</div>
-
+    @foreach(var device in Model){
     <div data-role="fieldcontain" >
-<label for="flip-2">Stairway</label>
-<select  name="flip-2" data-role="slider" data-mini="true" data-x10="a6">
-	<option value="off">Off</option>
-	<option value="on">On</option>
-</select>
-</div>
-
-    <div data-role="fieldcontain" >
-<label for="flip-3">Living Room</label>
-<select  name="flip-3" data-role="slider" data-mini="true" data-x10="a5">
-	<option value="off">Off</option>
-	<option value="on">On</option>
-</select>
-</div>
+    <label for="flip-@count">@device.Name</label>
+    <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Adress">
+	    <option value="off">Off</option>
+	    <option value="on">On</option>
+    </select>
     </div>
+    count++;
+    }
+</div>
 
 <div id="messages"></div>

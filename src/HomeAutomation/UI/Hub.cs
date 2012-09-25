@@ -20,5 +20,9 @@ namespace HomeAutomation
         {
             //received a command from RF / motion sensor / remote control.
         }
+        public void HeartBeat(DateTime datetime, string message)
+        {
+            Clients.sent(datetime.ToString(),message);
+        }
     }
 }

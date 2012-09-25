@@ -10,23 +10,15 @@ namespace UI.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
 
-            return View();
-        }
+            var model = new List<Device>();
+            model.Add(new Device { Name = "Office", Adress = "a8" });
+            model.Add(new Device { Name="Stairway",Adress="a6"});
+            model.Add(new Device { Name = "Living Rm", Adress = "a9" });
+            model.Add(new Device { Name = "Mastr Light", Adress = "a10" });
+            model.Add(new Device { Name = "Master Fan", Adress = "a11" });
 
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your app description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return View(model);
         }
     }
 }
