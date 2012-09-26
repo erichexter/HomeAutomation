@@ -18,6 +18,11 @@
               $('#messages').text(  address+ ' ' + command ).show().fadeOut(1500);
           };
 
+          // Declare a function on the chat hub so the server can invoke it
+          chat.heartBeatReceived = function (address, command) {
+              $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
+          };
+
           $("select").bind("change", function (event, ui) {
               chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
           });
@@ -28,9 +33,7 @@
 </script>
 }
 <h2>Hexter's</h2>
-<p>
-    
-</p>
+<div id="heartbeat"></div>
 <div " class="ui-body ui-body-a">
     @foreach(var device in Model){
     <div data-role="fieldcontain" >

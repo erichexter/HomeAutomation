@@ -26,7 +26,7 @@ namespace HomeAutomation
         }
         public void HeartBeat(DateTime datetime, string message)
         {
-            Clients.sent(datetime.ToString(),message);
+            Clients.heartBeatReceived(datetime.ToString(),message);
         }
     }
 }
