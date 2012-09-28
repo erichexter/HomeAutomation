@@ -36,11 +36,15 @@
 <div id="heartbeat"></div>
 <div " class="ui-body ui-body-a">
     @foreach(var device in Model){
+        string selected = string.Empty;
+        if(device.State=="on"){
+            selected = "selected='selected'";
+        }
     <div data-role="fieldcontain" >
-    <label for="flip-@count">@device.Name</label>
-    <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Adress">
+    <label for="flip-@count">@device.DisplayName</label>
+    <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Address">
 	    <option value="off">Off</option>
-	    <option value="on">On</option>
+	    <option value="on" @selected>On</option>
     </select>
     </div>
     count++;
