@@ -16,9 +16,5 @@ namespace UI.Controllers
 
             return View(model);
         }
-        public ActionResult Program()
-        {
-            return View();
-        }
     }
 }
