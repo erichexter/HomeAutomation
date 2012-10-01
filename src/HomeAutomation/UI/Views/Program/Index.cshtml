@@ -18,8 +18,11 @@
           };
 
           $("#broadcast").click(function () {
-              // Call the chat method on the server
               chat.programNewDevice($('#address').val());
+          });
+
+          $("#send").click(function () {
+              chat.sendCommandToClient($("#caddress").val(), $("#command").val());
           });
 
           // Start the connection
@@ -29,12 +32,24 @@
 }
 <h2>Program New Device</h2>
 <div id="heartbeat"></div>
-<div " class="ui-body ui-body-a">
+<div class="ui-body ui-body-a">
     <div data-role="fieldcontain">
   <label for="address">X10 Address:</label>
   <input type="text" name="address" id="address" data-mini="true"/>
   </div>
   <input type="button" id="broadcast" value="Program" />
-
 </div>
+<h3>Send arbitrary x10 commands</h3>
+<div class="ui-body ui-body-a">
+    <div data-role="fieldcontain">
+        <label for="caddress">X10 Address:</label>
+        <input type="text" name="caddress" id="caddress" data-mini="true"/>
+    </div>
+      <div data-role="fieldcontain">
+  <label for="address">command:</label>
+  <input type="text" name="command" id="command" data-mini="true"/>
+  </div>
+  <input type="button" id="send" value="send" />
+</div>
+
 <div id="messages"></div>
