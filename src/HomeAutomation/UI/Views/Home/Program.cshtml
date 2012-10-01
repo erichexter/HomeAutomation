@@ -1,0 +1,41 @@
+﻿
+@section Scripts{
+<script src="~/Scripts/json2.min.js"></script>
+<script src="~/Scripts/jquery.signalR-0.5.3.min.js"></script>
+<script src="~/signalr/hubs" type="text/javascript"></script>
+<script type="text/javascript">
+      $(function () {
+          // Proxy created on the fly
+          var chat = $.connection.relayCommands;
+
+          // Declare a function on the chat hub so the server can invoke it
+          chat.sent = function (address,command) {
+              $('#messages').text(  address+ ' ' + command ).show().fadeOut(1500);
+          };
+
+          // Declare a function on the chat hub so the server can invoke it
+          chat.heartBeatReceived = function (address, command) {
+              $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
+          };
+
+          $("#broadcast").click(function () {
+              // Call the chat method on the server
+              chat.programNewDevice($('#address').val());
+          });
+
+          // Start the connection
+          $.connection.hub.start();
+      });
+</script>
+}
+<h2>Program New Device</h2>
+<div id="heartbeat"></div>
+<div " class="ui-body ui-body-a">
+    <div data-role="fieldcontain">
+  <label for="address">X10 Address:</label>
+  <input type="text" name="address" id="address" data-mini="true"/>
+  </div>
+  <input type="button" id="broadcast" value="Program" />
+
+</div>
+<div id="messages"></div>

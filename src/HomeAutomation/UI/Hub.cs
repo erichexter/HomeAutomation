@@ -19,6 +19,10 @@ namespace HomeAutomation
             Clients.eventFired(eventname);
         }
 
+        public void programNewDevice(string address)
+        {
+            Clients.program(address);
+        }
         public void CommandSent(string address, string command)
         {
             var device = repository.Get(address);
