@@ -37,15 +37,22 @@
 <div " class="ui-body ui-body-a">
     @foreach(var device in Model){
         string selected = string.Empty;
+        var dimvalue = "0";
         if(device.State=="on"){
             selected = "selected='selected'";
+            dimvalue = "100";
         }
     <div data-role="fieldcontain" >
     <label for="flip-@count">@device.DisplayName</label>
-    <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Address">
-	    <option value="off">Off</option>
-	    <option value="on" @selected>On</option>
-    </select>
+        <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Address">
+            <option value="off">Off</option>
+            <option value="on" @selected>On</option>
+        </select>
+        @if(false && device.Dimmable)
+        {
+            
+            <input type="range" name="dim-@count" value="@dimvalue" min="0" max="100" step="33.34" data-highlight="true" data-mini="true" />
+        }
     </div>
     count++;
     }
