@@ -9,17 +9,36 @@ namespace LightController
 {
     public class X10AgentService:IDisposable
     {
-        internal static IHubProxy chat;
+        internal static IHubProxy hubProxy;
         private static X10Service x10Service;
-        private IScheduler sched;
+        private IScheduler scheduler;
+        
         public void Run()
+        {
+            x10Service = new X10Service(a => { Logger.Log(a); });
+
+            hubProxy = ConfigureServerCommunications();
+
+            Logger.loggerInternal = (message) =>
+            {
+                Console.WriteLine(message);
+                hubProxy.Invoke("commandSent", string.Empty, message);
+            };
+
+            scheduler = ConfigureScheduledEvents();
+            scheduler.Start();
+
+        }
+
+        private IHubProxy ConfigureServerCommunications()
         {
             var baseuri = System.Configuration.ConfigurationManager.AppSettings["base"];
             var hubConnection = new HubConnection(baseuri);
 
-            // Create a proxy to the chat service
-            chat = hubConnection.CreateProxy("relayCommands");
-            x10Service = new X10Service(a => { Console.WriteLine(a); });
+
+            // Create a proxy to the hubProxy service
+            var chat = hubConnection.CreateProxy("relayCommands");
+
             // Print the message when it comes in
             chat.On("executeCommand", (string a, string b) =>
                 {
@@ -32,44 +51,55 @@ namespace LightController
                     }
                     else
                     {
-                        chat.Invoke("commandSent", "error", result.Error);
+                        Logger.Log(result.Error);
                     }
-
                 }
                 );
 
-            chat.On("eventFired", a => { Console.WriteLine(a + " " + DateTime.Now.ToShortTimeString()); });
+            chat.On("eventFired", a => { Logger.Log(a + " " + DateTime.Now.ToShortTimeString()); });
 
             chat.On("program", a => { programDevice(a); });
-            // Start the connection
-            hubConnection.Start().Wait();
 
+            hubConnection.Start().Wait();
+            return chat;
+        }
+
+        private IScheduler ConfigureScheduledEvents()
+        {
             ISchedulerFactory schedFact = new StdSchedulerFactory();
 
             // get a scheduler
-            sched = schedFact.GetScheduler();
-            ConfigureScheduledEvents(sched);
+            var scheduler = schedFact.GetScheduler();
+            ConfigureScheduledEvents(scheduler);
 
-            sched.ScheduleJob(JobBuilder.Create<HeartbeatJob>().Build(), TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInSeconds(30).RepeatForever()).Build());
-
+            scheduler.ScheduleJob(JobBuilder.Create<HeartbeatJob>().Build(),
+                              TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInSeconds(30).RepeatForever()).Build
+                                  ());
+            return scheduler;
         }
 
-        private static void programDevice(string a)
+        private void programDevice(string a)
         {
-            Console.WriteLine("Programming device " + a);
+            Logger.Log("Programming device " + a);
             x10Service.SendX10Command(a, "on");
+            Logger.Log("Sent 1st command");
             System.Threading.Thread.Sleep(1000);
             x10Service.SendX10Command(a, "on");
+            Logger.Log("Sent 2nd command");
             System.Threading.Thread.Sleep(1000);
             x10Service.SendX10Command(a, "on");
-            chat.Invoke("commandSent", a, "was programmed");
+            Logger.Log("Sent 3ed command");
+            Logger.Log( a + " was programmed");
         }
+
+        //public void Echo(string message)
+        //{
+        //    Console.WriteLine(message);
+        //    hubProxy.Invoke("commandSent", string.Empty, message);
+        //}
 
         private static void ConfigureScheduledEvents(IScheduler sched)
         {
-            sched.Start();
-
-
             foreach (var trigger in GetTriggers())
             {
                 sched.ScheduleJob(JobBuilder.Create<PublishEvent>().Build(), trigger);
@@ -143,9 +173,10 @@ namespace LightController
 
         public void Dispose()
         {
-            sched.Shutdown(true);            
-            sched = null;
-            chat = null;
+            scheduler.Shutdown(true);            
+            scheduler = null;
+            hubProxy = null;
+            Logger.loggerInternal = (m) => { Console.WriteLine(m); };
         }
     }
 }

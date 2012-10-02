@@ -26,7 +26,7 @@ namespace LightController
             }
             catch (Exception o_O)
             {
-                _logger(o_O.Message);
+                //_logger(o_O.Message);
                 return new X10CommandResult{Success=false,Error=o_O.Message};
             }
 

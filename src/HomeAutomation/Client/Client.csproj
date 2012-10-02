@@ -60,12 +60,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HeartbeatJob.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="Schedule\HeartbeatJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QuartzExtensions.cs" />
-    <Compile Include="ServiceController.cs" />
-    <Compile Include="SimpleJob.cs" />
+    <Compile Include="Schedule\QuartzExtensions.cs" />
+    <Compile Include="Schedule\PublishEvent.cs" />
     <Compile Include="X10AgentService.cs" />
     <Compile Include="X10Service.cs" />
   </ItemGroup>

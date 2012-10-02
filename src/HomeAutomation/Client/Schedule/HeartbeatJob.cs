@@ -11,8 +11,8 @@ namespace Client
     {
         public void Execute(IJobExecutionContext context)
         {
-            Console.WriteLine("heartbeat");
-            X10AgentService.chat.Invoke("heartBeat", DateTime.Now, "x10 still running");
+            Logger.Log("heartbeat " + DateTime.Now.ToShortTimeString());            
+            X10AgentService.hubProxy.Invoke("heartBeat", DateTime.Now.ToShortTimeString(), "");
         }
     }
 }
