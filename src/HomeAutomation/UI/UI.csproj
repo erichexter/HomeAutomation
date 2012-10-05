@@ -143,9 +143,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\Device.cs" />
+    <Compile Include="Models\CommandState.cs" />
+    <Compile Include="Models\Device.cs" />
+    <Compile Include="Models\DeviceRepository.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProgramController.cs" />
+    <Compile Include="Models\Scene.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
