@@ -9,12 +9,22 @@ namespace UI.Controllers
     public class HomeController : Controller
     {
         DeviceRepository _repository = new DeviceRepository();
+        SceneRepository _sceneRepository = new SceneRepository();
         public ActionResult Index()
         {
 
-            var model = _repository.GetAll();
+            HomeViewModel model = new HomeViewModel();
+            model.Devices = _repository.GetAll();
+            model.Scenes = _sceneRepository.GetAll();
 
             return View(model);
         }
+    }
+
+    public class HomeViewModel
+    {
+        public IList<Device> Devices { get; set; }
+
+        public IList<Scene> Scenes { get; set; }
     }
 }

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.UI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UI.Controllers;
 
 namespace HomeAutomation
@@ -9,6 +13,7 @@ namespace HomeAutomation
     public class RelayCommands:SignalR.Hubs.Hub
     {
         DeviceRepository repository = new DeviceRepository();
+        SceneRepository sceneRepository=new SceneRepository();
         public void SendCommandToClient(string address, string command)
         {
             Clients.ExecuteCommand(address, command);
@@ -40,6 +45,15 @@ namespace HomeAutomation
         public void HeartBeat(DateTime datetime, string message)
         {
             Clients.heartBeatReceived(datetime.ToString(),message);
+        }
+
+        public void RunScene(int sceneId)
+        {
+            var scene = sceneRepository.Get(sceneId);
+            var js = Newtonsoft.Json.JsonSerializer.Create(new Newtonsoft.Json.JsonSerializerSettings());
+            StringWriter jw = new StringWriter();
+            js.Serialize(jw,scene);
+            Clients.runSceneOnAgent(jw.ToString());
         }
     }
 }

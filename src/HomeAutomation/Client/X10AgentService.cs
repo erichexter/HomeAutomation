@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Client;
+using Newtonsoft.Json;
 using Quartz;
 using Quartz.Impl;
 using SignalR.Client.Hubs;
@@ -42,26 +44,36 @@ namespace LightController
             // Print the message when it comes in
             chat.On("executeCommand", (string a, string b) =>
                 {
-                    Console.WriteLine(a + " " + b);
-
-                    var result = x10Service.SendX10Command(b, a);
-                    if (result.Success)
-                    {
-                        chat.Invoke("commandSent", a, b);
-                    }
-                    else
-                    {
-                        Logger.Log(result.Error);
-                    }
+                    executeCommand(a, b,chat);
                 }
                 );
 
+            chat.On("runSceneOnAgent", e=>
+                                           {
+                                               runScene(e,chat);
+                                           });
             chat.On("eventFired", a => { Logger.Log(a + " " + DateTime.Now.ToShortTimeString()); });
 
             chat.On("program", a => { programDevice(a); });
 
             hubConnection.Start().Wait();
             return chat;
+        }
+
+        private static void executeCommand(string address, string command,IHubProxy chat)
+        {
+            
+            Console.WriteLine(address + " " + command);
+
+            var result = x10Service.SendX10Command(command, address);
+            if (result.Success)
+            {
+                chat.Invoke("commandSent", address, command);
+            }
+            else
+            {
+                Logger.Log(result.Error);
+            }
         }
 
         private IScheduler ConfigureScheduledEvents()
@@ -77,7 +89,17 @@ namespace LightController
                                   ());
             return scheduler;
         }
-
+        private void runScene(string json,IHubProxy hub)
+        {
+            var jsonSerializer = new JsonSerializer();
+            dynamic stuff = jsonSerializer.Deserialize(new JsonTextReader(new StringReader(json)));
+            foreach (dynamic sceneCommand in stuff.Commands)
+            {
+                string command = sceneCommand.Command.ToString();
+                string address = sceneCommand.Device.Address.ToString();
+                executeCommand(address,command,hub);                
+            }
+        }
         private void programDevice(string a)
         {
             Logger.Log("Programming device " + a);

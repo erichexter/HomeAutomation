@@ -1,4 +1,4 @@
-﻿@model List<UI.Controllers.Device>
+﻿@model UI.Controllers.HomeViewModel
 @{
     ViewBag.Title = "Lighting";
     var count=0;
@@ -9,33 +9,45 @@
 <script src="Scripts/jquery.signalR-0.5.3.min.js"></script>
 <script src="/signalr/hubs" type="text/javascript"></script>
 <script type="text/javascript">
-      $(function () {
-          // Proxy created on the fly
-          var chat = $.connection.relayCommands;
+    $(function () {
+        // Proxy created on the fly
+        var chat = $.connection.relayCommands;
 
-          // Declare a function on the chat hub so the server can invoke it
-          chat.sent = function (address,command) {
-              $('#messages').text(  address+ ' ' + command ).show().fadeOut(1500);
-          };
+        // Declare a function on the chat hub so the server can invoke it
+        chat.sent = function (address, command) {
+            $('#messages').text(address + ' ' + command).show().fadeOut(1500);
+        };
 
-          // Declare a function on the chat hub so the server can invoke it
-          chat.heartBeatReceived = function (address, command) {
-              $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
-          };
+        // Declare a function on the chat hub so the server can invoke it
+        chat.heartBeatReceived = function (address, command) {
+            $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
+        };
 
-          $("select").bind("change", function (event, ui) {
-              chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
-          });
+        $("select").bind("change", function (event, ui) {
+            chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
+        });
 
-          // Start the connection
-          $.connection.hub.start();
-      });
+        $('input.scenebutton').bind("click", function (event,ui) {
+            chat.runScene($(this).data("x10"));
+        });
+        // Start the connection
+        $.connection.hub.start();
+    });
 </script>
 }
 <h2>Hexter's</h2>
 <div id="heartbeat"></div>
-<div " class="ui-body ui-body-a">
-    @foreach(var device in Model){
+<div class="ui-body ui-body-a">
+    @foreach(var scene in Model.Scenes){
+    <div data-role="fieldcontain" >
+        <input type="button" class="scenebutton" value="@scene.DisplayName" data-x10="@scene.Value"/>
+    </div>
+    count++;
+    }
+</div>
+
+<div class="ui-body ui-body-a">
+    @foreach(var device in Model.Devices){
         string selected = string.Empty;
         var dimvalue = "0";
         if(device.State=="on"){

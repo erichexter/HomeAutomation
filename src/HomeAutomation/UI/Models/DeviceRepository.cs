@@ -16,4 +16,16 @@ namespace UI.Controllers
             return GetAll().FirstOrDefault(d => d.Address.Equals(address));
         }
     }
+
+    public class SceneRepository
+    {
+        public IList<Scene> GetAll()
+        {
+            return Enumeration<Scene>.GetAll().ToList();
+        } 
+        public Scene Get(int id)
+        {
+            return GetAll().FirstOrDefault(s => s.Value.Equals(id));
+        }
+    }
 }
