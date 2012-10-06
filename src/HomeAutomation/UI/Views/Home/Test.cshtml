@@ -1,0 +1,71 @@
+﻿@using UI.Models
+@model UI.Controllers.HomeViewModel
+@{
+    ViewBag.Title = "Lighting";
+    var count=0;
+}
+
+@section Scripts{
+<script src="~/Scripts/knockout-2.1.0.js"></script>
+<script src="~/Scripts/json2.min.js"></script>
+<script src="~/Scripts/jquery.signalR-0.5.3.min.js"></script>
+<script src="~/signalr/hubs" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+
+        var viewModel = new ViewModel(@Html.Raw(Model.Devices.ToJson()), "loading");
+
+        ko.applyBindings(viewModel);
+        $("select").slider();
+
+        $("select").bind("change", function (event, ui) {
+            hub.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
+        });
+
+        var hub = $.connection.relayCommandHub;
+        hub.sent = function (address, command) {
+            viewModel.message( address + ' ' + command);    
+            var found = false;
+            for(i=0;i<viewModel.devices().length;i++){
+                var d = viewModel.devices[i];
+                if(d.DisplayName==äddress) {
+                 //   d.State(command);
+                    found = true;
+                    
+                }
+            }
+            if(found) {
+                //$('.selector').slider('refresh');   
+            }
+            
+        };
+
+        hub.heartBeatReceived = function (address, command) {
+            viewModel.heartbeat(address + ' ' + command);
+        };
+         $.connection.hub.start();
+        
+
+        function ViewModel(initialDevices,message) {
+            var self = this;
+            self.heartbeat = ko.observable("");
+            self.message = ko.observable(message);
+            self.devices = ko.observableArray(initialDevices);
+        }
+
+    });
+</script>
+}
+<h2>Hexter's</h2>
+<div id="heartbeat"></div>
+
+<div class="ui-body ui-body-a" data-bind="foreach: devices">
+    <div data-role="fieldcontain" >
+    <label  data-bind="text:DisplayName"></label>    
+        <select  data-role="none" data-bind="attr: { name : DisplayName , 'data-x10' : Address}" >
+            <option value="off">Off</option>
+            <option value="on" >On</option>
+        </select>   
+    </div>
+</div>
+<div id="messages" data-bind="text:message"></div>

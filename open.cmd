@@ -1,0 +1,1 @@
+src\homeautomation\homeautomation.sln

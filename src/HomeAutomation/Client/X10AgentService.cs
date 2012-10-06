@@ -39,25 +39,25 @@ namespace LightController
 
 
             // Create a proxy to the hubProxy service
-            var chat = hubConnection.CreateProxy("relayCommands");
+            var hub = hubConnection.CreateProxy("relayCommandHub");
 
             // Print the message when it comes in
-            chat.On("executeCommand", (string a, string b) =>
+            hub.On("executeCommand", (string a, string b) =>
                 {
-                    executeCommand(a, b,chat);
+                    executeCommand(a, b,hub);
                 }
                 );
 
-            chat.On("runSceneOnAgent", e=>
+            hub.On("runSceneOnAgent", e=>
                                            {
-                                               runScene(e,chat);
+                                               runScene(e,hub);
                                            });
-            chat.On("eventFired", a => { Logger.Log(a + " " + DateTime.Now.ToShortTimeString()); });
+            hub.On("eventFired", a => { Logger.Log(a + " " + DateTime.Now.ToShortTimeString()); });
 
-            chat.On("program", a => { programDevice(a); });
+            hub.On("program", a => { programDevice(a); });
 
             hubConnection.Start().Wait();
-            return chat;
+            return hub;
         }
 
         private static void executeCommand(string address, string command,IHubProxy chat)
@@ -72,6 +72,7 @@ namespace LightController
             }
             else
             {
+                chat.Invoke("commandSent", address, command=="on"?"off":"on");
                 Logger.Log(result.Error);
             }
         }
@@ -85,7 +86,7 @@ namespace LightController
             ConfigureScheduledEvents(scheduler);
 
             scheduler.ScheduleJob(JobBuilder.Create<HeartbeatJob>().Build(),
-                              TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInSeconds(30).RepeatForever()).Build
+                              TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInMinutes(3).RepeatForever()).Build
                                   ());
             return scheduler;
         }

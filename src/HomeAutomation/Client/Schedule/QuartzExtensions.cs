@@ -7,7 +7,7 @@ namespace LightController
         public  static DailyTimeIntervalScheduleBuilder Around(this DailyTimeIntervalScheduleBuilder x, TimeOfDay time)
         {
             return x.OnEveryDay()
-                .StartingDailyAt(time)
+                .StartingDailyAt(time).WithRepeatCount(0)
                 .EndingDailyAt(new TimeOfDay(time.Hour, time.Minute + 5));
         }
 

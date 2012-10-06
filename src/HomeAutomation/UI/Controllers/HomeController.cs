@@ -12,12 +12,17 @@ namespace UI.Controllers
         SceneRepository _sceneRepository = new SceneRepository();
         public ActionResult Index()
         {
-
             HomeViewModel model = new HomeViewModel();
             model.Devices = _repository.GetAll();
             model.Scenes = _sceneRepository.GetAll();
-
             return View(model);
+        }
+        public ActionResult Test()
+        {
+            HomeViewModel model = new HomeViewModel();
+            model.Devices = _repository.GetAll();
+            model.Scenes = _sceneRepository.GetAll();
+            return View(model);            
         }
     }
 

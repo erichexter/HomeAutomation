@@ -11,24 +11,24 @@
 <script type="text/javascript">
     $(function () {
         // Proxy created on the fly
-        var chat = $.connection.relayCommands;
+        var hub = $.connection.relayCommandHub;
 
         // Declare a function on the chat hub so the server can invoke it
-        chat.sent = function (address, command) {
+        hub.sent = function (address, command) {
             $('#messages').text(address + ' ' + command).show().fadeOut(1500);
         };
 
         // Declare a function on the chat hub so the server can invoke it
-        chat.heartBeatReceived = function (address, command) {
+        hub.heartBeatReceived = function (address, command) {
             $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
         };
 
         $("select").bind("change", function (event, ui) {
-            chat.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
+            hub.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
         });
 
         $('input.scenebutton').bind("click", function (event,ui) {
-            chat.runScene($(this).data("x10"));
+            hub.runScene($(this).data("x10"));
         });
         // Start the connection
         $.connection.hub.start();
