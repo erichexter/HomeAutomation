@@ -42,7 +42,7 @@ namespace HomeAutomation
 
         private void Log(string message)
         {
-            _.Log(message);
+            //_.Log(message);
         }
 
         public void CommandSent(string address, string command)
@@ -53,7 +53,7 @@ namespace HomeAutomation
             {
                 device.State = command;
             }
-            string id = device != null ? device.DisplayName : address;
+            string id = device != null ? device.Value.ToString() : address;
             Clients.sent(id, command);
         }
 

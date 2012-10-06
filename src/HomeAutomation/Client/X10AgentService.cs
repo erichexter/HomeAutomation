@@ -72,9 +72,10 @@ namespace LightController
             }
             else
             {
-                chat.Invoke("commandSent", address, command=="on"?"off":"on");
+            //    chat.Invoke("commandSent", address, command=="on"?"off":"on");
                 Logger.Log(result.Error);
             }
+            chat.Invoke("commandSent", address, command);
         }
 
         private IScheduler ConfigureScheduledEvents()

@@ -6,15 +6,14 @@
 }
 
 @section Scripts{
-<script src="~/Scripts/knockout-2.1.0.js"></script>
 <script src="~/Scripts/json2.min.js"></script>
 <script src="~/Scripts/jquery.signalR-0.5.3.min.js"></script>
+<script src="~/Scripts/knockout-2.1.0.js"></script>
+<script src="~/Scripts/knockout.mapping-latest.js"></script>
 <script src="~/signalr/hubs" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-
-        var viewModel = new ViewModel(@Html.Raw(Model.Devices.ToJson()), "loading");
-
+        var viewModel = ko.mapping.fromJS(@Html.Raw(Model.ToJson() ));        
         ko.applyBindings(viewModel);
         $("select").slider();
 
@@ -23,49 +22,37 @@
         });
 
         var hub = $.connection.relayCommandHub;
-        hub.sent = function (address, command) {
-            viewModel.message( address + ' ' + command);    
-            var found = false;
-            for(i=0;i<viewModel.devices().length;i++){
-                var d = viewModel.devices[i];
-                if(d.DisplayName==äddress) {
-                 //   d.State(command);
-                    found = true;
-                    
+        hub.sent = function (id, command) {
+            if (id != "") {
+                viewModel.Message(id + ' ' + command);
+                for (i = 0; i < viewModel.Devices().length; i++) {
+                    var d = viewModel.Devices()[i];
+                    if (d.Value().toString() === id) {
+                        viewModel.Devices()[i].State(command);                        
+                        $("select").slider('refresh');
+                    }
                 }
             }
-            if(found) {
-                //$('.selector').slider('refresh');   
-            }
-            
+
         };
 
         hub.heartBeatReceived = function (address, command) {
-            viewModel.heartbeat(address + ' ' + command);
+            viewModel.Heartbeat(address + ' ' + command);
         };
-         $.connection.hub.start();
-        
-
-        function ViewModel(initialDevices,message) {
-            var self = this;
-            self.heartbeat = ko.observable("");
-            self.message = ko.observable(message);
-            self.devices = ko.observableArray(initialDevices);
-        }
-
+         $.connection.hub.start();               
     });
 </script>
 }
 <h2>Hexter's</h2>
-<div id="heartbeat"></div>
+<div id="heartbeat" data-bind="text: Heartbeat"></div>
 
-<div class="ui-body ui-body-a" data-bind="foreach: devices">
+<div class="ui-body ui-body-a" data-bind="foreach: Devices">
     <div data-role="fieldcontain" >
     <label  data-bind="text:DisplayName"></label>    
-        <select  data-role="none" data-bind="attr: { name : DisplayName , 'data-x10' : Address}" >
+        <select  data-role="none" data-bind="value: State , attr: {name : DisplayName , 'data-x10' : Address}" >
             <option value="off">Off</option>
             <option value="on" >On</option>
         </select>   
     </div>
 </div>
-<div id="messages" data-bind="text:message"></div>
+<div id="messages" data-bind="text:Message"></div>

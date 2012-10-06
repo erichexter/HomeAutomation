@@ -28,6 +28,8 @@ namespace UI.Controllers
 
     public class HomeViewModel
     {
+        public string Message { get; set; }
+        public string Heartbeat { get; set; }
         public IList<Device> Devices { get; set; }
 
         public IList<Scene> Scenes { get; set; }
