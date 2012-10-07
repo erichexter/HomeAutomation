@@ -43,7 +43,7 @@ namespace HomeAutomation
 
         private void Log(string message)
         {
-            //_.Log(message);
+            _.Log(message);
         }
 
         public void DeviceStateChanged(string address, string state)
