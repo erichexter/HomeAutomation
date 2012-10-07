@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using SignalR;
 
 namespace UI
 {
@@ -22,6 +23,7 @@ namespace UI
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            GlobalHost.Configuration.KeepAlive = TimeSpan.FromSeconds(5);
         }
     }
 }
