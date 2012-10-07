@@ -2,7 +2,6 @@
 @model UI.Controllers.HomeViewModel
 @{
     ViewBag.Title = "Lighting";
-    var count=0;
 }
 
 @section Scripts{
@@ -17,27 +16,32 @@
         ko.applyBindings(viewModel);
         $("select").slider();
 
+        var hub = $.connection.relayCommandHub;
+
+
         $("select").bind("change", function (event, ui) {
-            hub.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
+            hub.requestDeviceStateChange($(this[0]).parent().data("x10"), $(this[0]).parent().val());
         });
 
-        var hub = $.connection.relayCommandHub;
-        hub.sent = function (id, command) {
-            if (id != "") {
-                viewModel.Message(id + ' ' + command);
+        $('input.scenebutton').bind("click", function (event, ui) {
+            hub.requestSceneExecution($(this).data("x10"));
+        });
+
+        hub.broadcastDeviceState = function (value, state) {
+            if (value != "") {                
                 for (i = 0; i < viewModel.Devices().length; i++) {
-                    var d = viewModel.Devices()[i];
-                    if (d.Value().toString() === id) {
-                        viewModel.Devices()[i].State(command);                        
+                    if (viewModel.Devices()[i].Value().toString() === value) {
+                        viewModel.Devices()[i].State(state);                        
                         $("select").slider('refresh');
+                        viewModel.Message(value + ' ' + state);
                     }
                 }
             }
 
         };
 
-        hub.heartBeatReceived = function (address, command) {
-            viewModel.Heartbeat(address + ' ' + command);
+        hub.broadcastHeartbeat = function (time) {
+            viewModel.Heartbeat(time);
         };
          $.connection.hub.start();               
     });
@@ -45,6 +49,13 @@
 }
 <h2>Hexter's</h2>
 <div id="heartbeat" data-bind="text: Heartbeat"></div>
+<div class="ui-body ui-body-a">
+    @foreach(var scene in Model.Scenes){
+    <div data-role="fieldcontain" >
+        <input type="button" class="scenebutton" value="@scene.DisplayName" data-x10="@scene.Value"/>
+    </div>
+    }
+</div>
 
 <div class="ui-body ui-body-a" data-bind="foreach: Devices">
     <div data-role="fieldcontain" >

@@ -42,19 +42,18 @@ namespace LightController
             var hub = hubConnection.CreateProxy("relayCommandHub");
 
             // Print the message when it comes in
-            hub.On("executeCommand", (string a, string b) =>
+            hub.On("requestDeviceStateChangeOnAgent", (string a, string b) =>
                 {
                     executeCommand(a, b,hub);
                 }
                 );
 
-            hub.On("runSceneOnAgent", e=>
+            hub.On("requestSceneExecutionOnAgent", e =>
                                            {
                                                runScene(e,hub);
                                            });
-            hub.On("eventFired", a => { Logger.Log(a + " " + DateTime.Now.ToShortTimeString()); });
 
-            hub.On("program", a => { programDevice(a); });
+            hub.On("requestProgramNewDeviceOnAgent", a => { programDevice(a); });
 
             hubConnection.Start().Wait();
             return hub;
@@ -68,14 +67,14 @@ namespace LightController
             var result = x10Service.SendX10Command(command, address);
             if (result.Success)
             {
-                chat.Invoke("commandSent", address, command);
+                chat.Invoke("DeviceStateChanged", address, command);
             }
             else
             {
-            //    chat.Invoke("commandSent", address, command=="on"?"off":"on");
+                chat.Invoke("DeviceStateChanged", address, command=="on"?"off":"on");
                 Logger.Log(result.Error);
             }
-            chat.Invoke("commandSent", address, command);
+            
         }
 
         private IScheduler ConfigureScheduledEvents()
@@ -87,7 +86,7 @@ namespace LightController
             ConfigureScheduledEvents(scheduler);
 
             scheduler.ScheduleJob(JobBuilder.Create<HeartbeatJob>().Build(),
-                              TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInMinutes(3).RepeatForever()).Build
+                              TriggerBuilder.Create().WithSimpleSchedule(s => s.WithIntervalInMinutes(10).RepeatForever()).Build
                                   ());
             return scheduler;
         }

@@ -11,9 +11,9 @@ namespace Client
     {
         public void Execute(IJobExecutionContext context)
         {
-            string e = context.MergedJobDataMap["event"].ToString();
-            X10AgentService.hubProxy.Invoke("timedEvent", e); ;
-            Logger.Log("Fired event " + e);
+            string eventName = context.MergedJobDataMap["event"].ToString();
+            X10AgentService.hubProxy.Invoke("fireTimedEvent", eventName); ;
+            Logger.Log("Fired event " + eventName);
         }
     }
 }

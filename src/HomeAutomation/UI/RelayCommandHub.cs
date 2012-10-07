@@ -14,14 +14,15 @@ namespace HomeAutomation
         private readonly DeviceRepository _deviceRepository = new DeviceRepository();
         private readonly SceneRepository _sceneRepository = new SceneRepository();
         private Loggly.ILogger _ = new Logger("155db123-359e-4461-a836-d17d265bc2a1");
- 
-        public void SendCommandToClient(string address, string command)
+        private DateTime _lastHeartbeat;
+
+        public void RequestDeviceStateChange(string address, string command)
         {
-            Log("send command to client "+ address + " " + command);
-            Clients.ExecuteCommand(address, command);
+            Log("send state to client "+ address + " " + command);
+            Clients.requestDeviceStateChangeOnAgent(address, command);
         }
 
-        public void TimedEvent(string eventname)
+        public void FireTimedEvent(string eventname)
         {
             Log("timed event "+eventname);
             Scene scene =
@@ -29,15 +30,15 @@ namespace HomeAutomation
                     e => e.DisplayName.Replace(" ","").Equals(eventname, StringComparison.InvariantCultureIgnoreCase));
             if (scene != null)
             {
-                RunScene(scene.Value);
-                Clients.eventFired(eventname);
+                RequestSceneExecution(scene.Value);
+                Clients.broadcastEventFired(eventname);
             }
         }
 
-        public void programNewDevice(string address)
+        public void RequestProgramNewDevice(string address)
         {
             Log("program " + address);
-            Clients.program(address);
+            Clients.requestProgramNewDeviceOnAgent(address);
         }
 
         private void Log(string message)
@@ -45,34 +46,29 @@ namespace HomeAutomation
             //_.Log(message);
         }
 
-        public void CommandSent(string address, string command)
+        public void DeviceStateChanged(string address, string state)
         {
-            Log("command sent "+ address+" " + command);
+            Log("state sent "+ address+" " + state);
             var device = _deviceRepository.Get(address);
             if (device != null)
             {
-                device.State = command;
+                device.State = state;
+                Clients.broadcastDeviceState(device.Value.ToString(), state);
             }
-            string id = device != null ? device.Value.ToString() : address;
-            Clients.sent(id, command);
         }
 
-        public void CommandReceived(string address, string command)
+        public void HeartBeat(DateTime datetime)
         {
-            //received a command from RF / motion sensor / remote control.
-        }
-
-        public void HeartBeat(DateTime datetime, string message)
-        {
+            _lastHeartbeat = datetime;
             Log("heartbeat");
-            Clients.heartBeatReceived(datetime.ToString(), message);
+            Clients.broadcastHeartbeat(datetime.ToString());
         }
 
-        public void RunScene(int sceneId)
+        public void RequestSceneExecution(int sceneId)
         {
             var scene = _sceneRepository.Get(sceneId);
             Log("run scene "+scene.DisplayName);
-            Clients.runSceneOnAgent(scene.ToJson());
+            Clients.requestSceneExecutionOnAgent(scene.ToJson());
         }
     }
 }

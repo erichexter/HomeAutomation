@@ -1,73 +1,69 @@
-﻿@model UI.Controllers.HomeViewModel
+﻿@using UI.Models
+@model UI.Controllers.HomeViewModel
 @{
     ViewBag.Title = "Lighting";
-    var count=0;
 }
 
 @section Scripts{
-<script src="Scripts/json2.min.js"></script>
-<script src="Scripts/jquery.signalR-0.5.3.min.js"></script>
-<script src="/signalr/hubs" type="text/javascript"></script>
+<script src="~/Scripts/json2.min.js"></script>
+<script src="~/Scripts/jquery.signalR-0.5.3.min.js"></script>
+<script src="~/Scripts/knockout-2.1.0.js"></script>
+<script src="~/Scripts/knockout.mapping-latest.js"></script>
+<script src="~/signalr/hubs" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        // Proxy created on the fly
+        var viewModel = ko.mapping.fromJS(@Html.Raw(Model.ToJson() ));
+        ko.applyBindings(viewModel);
+        $("select").slider();
+
         var hub = $.connection.relayCommandHub;
 
-        // Declare a function on the chat hub so the server can invoke it
-        hub.sent = function (address, command) {
-            $('#messages').text(address + ' ' + command).show().fadeOut(1500);
-        };
-
-        // Declare a function on the chat hub so the server can invoke it
-        hub.heartBeatReceived = function (address, command) {
-            $('#heartbeat').text(address + ' ' + command).show().fadeOut(15000);
-        };
 
         $("select").bind("change", function (event, ui) {
-            hub.sendCommandToClient($(this[0]).parent().data("x10"), $(this[0]).parent().val());
+            hub.requestDeviceStateChange($(this[0]).parent().data("x10"), $(this[0]).parent().val());
         });
 
-        $('input.scenebutton').bind("click", function (event,ui) {
-            hub.runScene($(this).data("x10"));
+        $('input.scenebutton').bind("click", function (event, ui) {
+            hub.requestSceneExecution($(this).data("x10"));
         });
-        // Start the connection
+
+        hub.broadcastDeviceState = function (value, state) {
+            if (value != "") {
+                for (i = 0; i < viewModel.Devices().length; i++) {
+                    if (viewModel.Devices()[i].Value().toString() === value) {
+                        viewModel.Devices()[i].State(state);
+                        $("select").slider('refresh');
+                        viewModel.Message(viewModel.Devices()[i].DisplayName() + ' ' + state);
+                    }
+                }
+            }
+
+        };
+
+        hub.broadcastHeartbeat = function (time) {
+            viewModel.Heartbeat(time);
+        };
         $.connection.hub.start();
     });
 </script>
 }
 <h2>Hexter's</h2>
-<div id="heartbeat"></div>
+<div id="heartbeat" data-bind="text: Heartbeat"></div>
 <div class="ui-body ui-body-a">
     @foreach(var scene in Model.Scenes){
     <div data-role="fieldcontain" >
         <input type="button" class="scenebutton" value="@scene.DisplayName" data-x10="@scene.Value"/>
     </div>
-    count++;
     }
 </div>
 
-<div class="ui-body ui-body-a">
-    @foreach(var device in Model.Devices){
-        string selected = string.Empty;
-        var dimvalue = "0";
-        if(device.State=="on"){
-            selected = "selected='selected'";
-            dimvalue = "100";
-        }
+<div class="ui-body ui-body-a" data-bind="foreach: Devices">
     <div data-role="fieldcontain" >
-    <label for="flip-@count">@device.DisplayName</label>
-        <select name="flip-@count"  data-role="slider" data-mini="true" data-x10="@device.Address">
+    <label  data-bind="text:DisplayName"></label>    
+        <select  data-role="none" data-bind="value: State , attr: {name : DisplayName , 'data-x10' : Address}" >
             <option value="off">Off</option>
-            <option value="on" @selected>On</option>
-        </select>
-        @if(false && device.Dimmable)
-        {
-            
-            <input type="range" name="dim-@count" value="@dimvalue" min="0" max="100" step="33.34" data-highlight="true" data-mini="true" />
-        }
+            <option value="on" >On</option>
+        </select>   
     </div>
-    count++;
-    }
 </div>
-
-<div id="messages"></div>
+<div id="messages" data-bind="text:Message"></div>
