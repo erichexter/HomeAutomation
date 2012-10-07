@@ -16,10 +16,19 @@ namespace HomeAutomation
         private Loggly.ILogger _ = new Logger("155db123-359e-4461-a836-d17d265bc2a1");
         private DateTime _lastHeartbeat;
 
-        public void RequestDeviceStateChange(string address, string command)
+        public void RequestDeviceStateChange(string address, string state)
         {
-            Log("send state to client "+ address + " " + command);
-            Clients.requestDeviceStateChangeOnAgent(address, command);
+            Log("send state to client "+ address + " " + state);
+            //issue the command
+            Clients.requestDeviceStateChangeOnAgent(address, state);
+            
+            //tell the clients this happened.. assume it will.. the change will revert if the update fails.
+            var device = _deviceRepository.Get(address);
+            if (device != null)
+            {
+                device.State = state;
+                Clients.broadcastDeviceState(device.Value.ToString(), state);
+            }
         }
 
         public void FireTimedEvent(string eventname)
