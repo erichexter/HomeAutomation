@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using Loggly;
+using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json;
-using SignalR.Hubs;
+
 using UI.Controllers;
 using UI.Models;
 
